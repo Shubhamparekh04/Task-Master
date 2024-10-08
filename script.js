@@ -1,68 +1,63 @@
-/*---------------------------------------------------- */
+let taskName = [];
+let prioritiesList = [];
+let deadlines = [];
+/*----------------------TASK-------------------------- */
 const taskField = document.getElementById("taskField"); // Task input field
 const invalidTask = document.getElementById("invalid-task"); // Invalid task msg
 
-/*---------------------------------------------------- */
+/*------------------------PRIORITY----------------------- */
 const priority = document.getElementById("priority"); // Priority drop-down
 const invalidPriority = document.getElementById("invalid-priority"); // Invalid Priority message
 
-/*---------------------------------------------------- */
+/*-----------------------DATE----------------------- */
 const dateInput = document.getElementById('date'); // Deadline Field
 const dateError = document.getElementById('dateError'); // Date select message
-
 /*---------------------------------------------------- */
-let btnClick = 0;
+
 let tableBody = document.getElementById("table-body");
 
 /*************************************************** */
-function creatTaskHolder(tasknum, task, priority, deadline) {
-    let trow = document.createElement("tr");
+function creatTaskHolder() {
 
-    let taskCount = document.createElement("th");
-    let td1 = document.createElement("td");
-    let td2 = document.createElement("td");
-    let td3 = document.createElement("td");
-    let CompleteBtn = document.createElement("button");
+    tableBody.innerHTML = "";
 
-    taskCount.innerHTML = tasknum;
-    taskCount.style.textAlign = "center";
-    td1.innerHTML = task;
-    td2.innerHTML = priority;
-    td3.innerHTML = deadline;
-    CompleteBtn.innerHTML = "Done";
-    CompleteBtn.classList.add("btn", "btn-outline-success");
-    CompleteBtn.setAttribute("type", "button"); // PREVENTS TO RELOAD PAGE
+    taskName.map((taskElement, index) => {
+        let trow = document.createElement("tr");
 
-    // Add event listener to remove the row when 'Done' button is clicked
-    CompleteBtn.addEventListener("click", function () {
-        trow.remove(); // Remove the entire row
+        let taskCount = document.createElement("th");
+        let td1 = document.createElement("td");
+        let td2 = document.createElement("td");
+        let td3 = document.createElement("td");
+        let CompleteBtn = document.createElement("button");
 
-        // Check if all tasks are deleted, reset counter if the table is empty
-        if (tableBody.rows.length === 0) {
-            btnClick = 0;
+        taskCount.innerHTML = index + 1;
+        taskCount.style.textAlign = "center";
+        td1.innerHTML = taskName;
+        td2.innerHTML = prioritiesList[index];
+        td3.innerHTML = deadlines[index];
+        CompleteBtn.innerHTML = "Done";
+        CompleteBtn.classList.add("btn", "btn-outline-success");
+        CompleteBtn.setAttribute("type", "button"); // PREVENTS TO RELOAD PAGE
+
+        // Add event listener to remove the row when 'Done' button is clicked
+        CompleteBtn.addEventListener("click", function () {
+            [taskName, prioritiesList, deadlines].forEach(arr => arr.splice(index, 1));
+            creatTaskHolder();
+        });
+
+        trow.append(taskCount, td1, td2, td3, CompleteBtn);
+
+        if (td2.innerText === "High") {
+            [taskCount, td1, td2, td3].forEach(element => element.classList.add("text-danger"));
+        } else if (td2.innerText === "Medium") {
+            [taskCount, td1, td2, td3].forEach(element => element.classList.add("text-warning"));
         }
+
+        tableBody.appendChild(trow);
+
+        // clear form
+        [taskField, priority, dateInput].forEach(element => element.value = "")
     });
-
-    trow.append(taskCount, td1, td2, td3, CompleteBtn);
-
-    if (td2.innerText == "High") {
-        taskCount.classList.add("text-danger");
-        td1.classList.add("text-danger");
-        td2.classList.add("text-danger");
-        td3.classList.add("text-danger");
-    } else if (td2.innerText == "Medium") {
-        taskCount.classList.add("text-warning");
-        td1.classList.add("text-warning");
-        td2.classList.add("text-warning");
-        td3.classList.add("text-warning");
-    }
-
-    tableBody.appendChild(trow);
-
-    // clear form
-    taskField.value = "";
-    priority.value = "";
-    dateInput.value = "";
 }
 
 /*************************************************** */
@@ -93,7 +88,11 @@ document.getElementById("addTaskBtn").addEventListener("click", function () {
     }
 
     if (allValueAvailable) {
-        btnClick++; 
-        creatTaskHolder(btnClick, taskField.value, priority.value, dateInput.value);
+
+        taskName.push(taskField.value);
+        prioritiesList.push(priority.value);
+        deadlines.push(dateInput.value);
+
+        creatTaskHolder();
     }
 });
